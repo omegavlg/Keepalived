@@ -64,7 +64,7 @@ Router1(config)# exit
 Router1# write memory
 ```
 
-![pkt](https://github.com/omegavlg/Keepalived/blob/main/hsrp_advanced_dedyurin.pkt)
+[pkt](https://github.com/omegavlg/Keepalived/blob/main/hsrp_advanced_dedyurin.pkt)
 
 ---
 
