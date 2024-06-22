@@ -4,6 +4,12 @@
 
 ## Задание 1
 
+Дана схема для Cisco Packet Tracer, рассматриваемая в лекции.
+На данной схеме уже настроено отслеживание интерфейсов маршрутизаторов Gi0/1 (для нулевой группы)
+Необходимо аналогично настроить отслеживание состояния интерфейсов Gi0/0 (для первой группы).
+Для проверки корректности настройки, разорвите один из кабелей между одним из маршрутизаторов и Switch0 и запустите ping между PC0 и Server0.
+На проверку отправьте получившуюся схему в формате pkt и скриншот, где виден процесс настройки маршрутизатора.
+
 `Приведите ответ в свободной форме........`
 
 1. `Заполните здесь этапы выполнения, если требуется ....`
@@ -13,12 +19,48 @@
 5. `Заполните здесь этапы выполнения, если требуется ....`
 6. 
 
+Router1
 ```
-Поле для вставки кода...
-....
-....
-....
-....
+Router0> enable
+Router0# configure terminal
+Router0(config)# interface gigabitEthernet 0/0
+Router0(config-if)# standby version 2
+Router0(config-if)# standby 0 ip 192.168.0.1
+Router0(config-if)# standby 0 priority 105
+Router0(config-if)# standby 0 preempt
+Router0(config-if)# standby 0 track gigabitEthernet 0/1
+Router0(config-if)# exit
+Router0(config)# interface gigabitEthernet 0/1
+Router0(config-if)# standby version 2
+Router0(config-if)# standby 1 ip 192.168.1.1
+Router0(config-if)# standby 1 priority 100
+Router0(config-if)# standby 1 preempt
+Router0(config-if)# standby 1 track gigabitEthernet 0/0
+Router0(config-if)# exit
+Router0(config)# exit
+Router0# write memory
+```
+
+Router2
+```
+Router1> enable
+Router1# configure terminal
+Router1(config)# interface gigabitEthernet 0/0
+Router1(config-if)# standby version 2
+Router1(config-if)# standby 0 ip 192.168.0.1
+Router1(config-if)# standby 0 priority 105
+Router1(config-if)# standby 0 preempt
+Router1(config-if)# standby 0 track gigabitEthernet 0/1
+Router1(config-if)# exit
+Router1(config)# interface gigabitEthernet 0/1
+Router1(config-if)# standby version 2
+Router1(config-if)# standby 1 ip 192.168.1.1
+Router1(config-if)# standby 1 priority 100
+Router1(config-if)# standby 1 preempt
+Router1(config-if)# standby 1 track gigabitEthernet 0/0
+Router1(config-if)# exit
+Router1(config)# exit
+Router1# write memory
 ```
 
 `При необходимости прикрепитe сюда скриншоты
