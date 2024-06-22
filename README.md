@@ -63,6 +63,10 @@ Router1(config)# exit
 Router1# write memory
 ```
 
+пкт файл
+
+https://github.com/omegavlg/Keepalived/blob/main/hsrp_advanced_dedyurin.pkt
+
 `При необходимости прикрепитe сюда скриншоты
 ![Название скриншота 1](ссылка на скриншот 1)`
 
