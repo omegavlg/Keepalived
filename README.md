@@ -69,12 +69,32 @@ Router1# write memory
 * Напишите Bash-скрипт, который будет проверять доступность порта данного веб-сервера и существование файла index.html в root-директории данного веб-сервера.
 * Настройте Keepalived так, чтобы он запускал данный скрипт каждые 3 секунды и переносил виртуальный IP на другой сервер, если bash-скрипт завершался с кодом, отличным от нуля (то есть порт веб-сервера был недоступен или отсутствовал index.html). Используйте для этого секцию vrrp_script
 * На проверку отправьте получившейся bash-скрипт и конфигурационный файл keepalived, а также скриншот с демонстрацией переезда плавающего ip на другой сервер в случае недоступности порта или файла index.html
+
+Скрипт 
+
 ```
-Поле для вставки кода...
-....
-....
-....
-....
+#!/bin/bash
+
+# Check if port 80 is open on localhost
+exec 3<> /dev/tcp/127.0.0.1/80
+PORT_STATUS=$?
+exec 3>&-
+
+# Placeholder variable FILE (you can set it to any appropriate value if needed)
+FILE_STATUS=0
+
+# Output the status of the port and the file variable
+echo "$PORT_STATUS"
+echo "$FILE_STATUS"
+
+# Check conditions and write the result to /tmp/track_file
+if [[ $PORT_STATUS -eq 0 && $FILE_STATUS -eq 0 ]]; then
+  echo "0" > /tmp/track_file
+  exit 0
+else
+  echo "1" > /tmp/track_file
+  exit 1
+fi
 ```
 
 `При необходимости прикрепитe сюда скриншоты
