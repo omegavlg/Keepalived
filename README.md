@@ -70,57 +70,64 @@ Router1# write memory
 * Настройте Keepalived так, чтобы он запускал данный скрипт каждые 3 секунды и переносил виртуальный IP на другой сервер, если bash-скрипт завершался с кодом, отличным от нуля (то есть порт веб-сервера был недоступен или отсутствовал index.html). Используйте для этого секцию vrrp_script
 * На проверку отправьте получившейся bash-скрипт и конфигурационный файл keepalived, а также скриншот с демонстрацией переезда плавающего ip на другой сервер в случае недоступности порта или файла index.html
 
-Скрипт 
+#### Скрипт check_web.sh
+Выполняет проверку на открытый порт 80 ИЛИ присутствие файла index.html в директории /usr/share/nginx/html/, если хотябы одно из этих условий не будет выполнено, тогда скрипт завершится с кодом ошибки "1", и передаст управление другой ноде.
 
 ```
 #!/bin/bash
 
-# Check if port 80 is open on localhost
+echo "Script started at $(date)" >> /tmp/check_web.log
 exec 3<> /dev/tcp/127.0.0.1/80
 PORT_STATUS=$?
 exec 3>&-
 
-# Placeholder variable FILE (you can set it to any appropriate value if needed)
-FILE_STATUS=0
+INDEX_FILE="/usr/share/nginx/html/index.html"
+if [ -f "$INDEX_FILE" ]; then
+  FILE_STATUS=0
+else
+  FILE_STATUS=1
+fi
 
-# Output the status of the port and the file variable
 echo "$PORT_STATUS"
 echo "$FILE_STATUS"
 
-# Check conditions and write the result to /tmp/track_file
-if [[ $PORT_STATUS -eq 0 && $FILE_STATUS -eq 0 ]]; then
-  echo "0" > /tmp/track_file
-  exit 0
-else
+if [[ $PORT_STATUS -eq 1 || $FILE_STATUS -eq 1 ]]; then
   echo "1" > /tmp/track_file
   exit 1
+else
+  echo "0" > /tmp/track_file
+  exit 0
 fi
+echo "Script finished with exit code $?" >> /tmp/check_web.log
 ```
 
-`При необходимости прикрепитe сюда скриншоты
-![Название скриншота 2](ссылка на скриншот 2)`
-
-
----
-
-## Задание 3
-
-`Приведите ответ в свободной форме........`
-
-1. `Заполните здесь этапы выполнения, если требуется ....`
-2. `Заполните здесь этапы выполнения, если требуется ....`
-3. `Заполните здесь этапы выполнения, если требуется ....`
-4. `Заполните здесь этапы выполнения, если требуется ....`
-5. `Заполните здесь этапы выполнения, если требуется ....`
-6. 
+#### Скрипт keepalived.conf
 
 ```
-Поле для вставки кода...
-....
-....
-....
-....
-```
+global_defs {
+        script_user root
+        enable_script_security
+        }
 
-`При необходимости прикрепитe сюда скриншоты
-![Название скриншота](ссылка на скриншот)`
+vrrp_script check_web {
+        script "/etc/keepalived/check_web.sh"
+        interval 3
+        }
+
+vrrp_instance VI_1 {
+        state MASTER
+        interface enp0s8
+        virtual_router_id 111
+        priority 255
+        advert_int 1
+        }
+
+        virtual_ipaddress {
+                192.168.1.111/24
+        }
+
+        track_script {
+                check_web
+        }
+}
+```
